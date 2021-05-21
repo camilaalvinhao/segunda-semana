@@ -4,11 +4,11 @@
 
 (def db-uri "datomic:dev://localhost:4334/compras")
 
-(defn abre-conexao []
+(defn abre-conexao! []
   (d/create-database db-uri)
   (d/connect db-uri))
 
-(defn apaga-banco []
+(defn apaga-banco! []
   (d/delete-database db-uri))
 
 (defn todas-as-compras [db]
@@ -27,7 +27,7 @@
   (d/q '[:find (pull ?entidade [*])
          :where [?entidade :categoria/id  ]] db))
 
-(defn cria-schema [conn]
+(defn cria-schema! [conn]
   (d/transact conn schema-cliente)
   (d/transact conn schema-cartao)
   (d/transact conn schema-compra)
@@ -148,39 +148,5 @@
               :db/doc           "Categoria de compras"
               }])
 
-(def cliente (model/novo-cliente "Jose" "Silva" "1010101010" "jose@jose.com"))
-(def cliente1 (model/novo-cliente "Orlando" "Oliveira" "1212121212" "orlando@orlando.com"))
 
-
-(def cartao (model/novo-cartao 5336742783042220 430 #inst "2022-09-16T00:00" 8000M [:cliente/id (:cliente/id cliente)]))
-
-
-(def categoria (model/nova-categoria "Supermercado" "/supermercado"))
-(def categoria1 (model/nova-categoria "Farmacia" "/farmacia"))
-(def categoria2 (model/nova-categoria "Padaria" "/padaria"))
-
-(def compra (model/nova-compra #inst "2020-09-16T07:01",
-                               10.8M,
-                               "Supermercado BH",
-                               [:categoria/id (:categoria/id categoria)],
-                               [:cartao/id (:cartao/id cartao)]))
-
-(def compra1 (model/nova-compra #inst "2021-04-17T22:31",
-                               15.2M,
-                               "Pao fofo",
-                               [:categoria/id (:categoria/id categoria2)],
-                               [:cartao/id (:cartao/id cartao)]))
-
-(def compra2 (model/nova-compra #inst "2020-12-02T20:31",
-                               102.9M,
-                               "Carrefour",
-                               [:categoria/id (:categoria/id categoria)],
-                               [:cartao/id (:cartao/id cartao)]))
-
-(defn insere-dados [conn]
-  (d/transact conn [cliente, cliente1])
-  (d/transact conn [cartao])
-  (d/transact conn [categoria, categoria1, categoria2])
-  (d/transact conn [compra compra1 compra2])
-  )
 
